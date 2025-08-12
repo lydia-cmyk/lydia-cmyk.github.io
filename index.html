@@ -58,22 +58,22 @@
   
     /* ---- Glass + blurred city background ---- */
     body::before{
-      content:"";
-      position:fixed; inset:0;
-      background:url('assets/bg-city.jpg?v=2') center/cover no-repeat;
-      filter:blur(18px) saturate(120%) brightness(0.7);
-      transform:scale(1.06);            /* hide blur edges */
-      z-index:-2;
-    }
+  content:"";
+  position:fixed; inset:0;
+  background:url('assets/bg-city.jpg?v=3') center/cover no-repeat;
+  filter:blur(16px) saturate(120%) brightness(0.90);
+  transform:scale(1.06);
+  z-index:-2;
+}
     body::after{
-      content:"";
-      position:fixed; inset:0;
-      background:
-        radial-gradient(1200px 600px at 20% -10%, rgba(255,77,79,.10), transparent 60%),
-        radial-gradient(900px 500px at 110% 10%, rgba(138,180,248,.08), transparent 60%),
-        linear-gradient(180deg, rgba(8,10,16,.70), rgba(8,10,16,.84) 30%, rgba(8,10,16,.92));
-      z-index:-1;
-    }
+  content:"";
+  position:fixed; inset:0;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(255,77,79,.06), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(138,180,248,.05), transparent 60%),
+    linear-gradient(180deg, rgba(8,10,16,.55), rgba(8,10,16,.70) 30%, rgba(8,10,16,.80));
+  z-index:-1;
+}
     /* glass card */
     .card{
       background:rgba(16,20,28,.42);
