@@ -6,13 +6,7 @@
   <title>POMODORO+ · 집중 타이머 & 공부 기록</title>
   <meta name="description" content="뽀모도로 타이머와 학습 노하우. 이미지/마크다운 지원 블로그 포함." />
   <style>
-    :root{
-      --bg:#0a0c12; --panel:#10131b; --panel-2:#151a24;
-      --text:#edf2f7; --muted:#9aa0a6; --acc:#ff4d4f; --ring:#2a2f3a;
-      --glow1: 0 0 32px rgba(255,77,79,.22), 0 0 8px rgba(255,77,79,.35);
-      --glow2: 0 0 36px rgba(138,180,248,.18), inset 0 0 0 1px rgba(255,255,255,.02);
-      --prose:#cfd6e4;
-    }
+    :root{ --bg:#0a0c12; --panel:#10131b; --panel-2:#151a24; --text:#edf2f7; --muted:#9aa0a6; --acc:#ff4d4f; --ring:#2a2f3a; --glow1:0 0 32px rgba(255,77,79,.22),0 0 8px rgba(255,77,79,.35); --glow2:0 0 36px rgba(138,180,248,.18), inset 0 0 0 1px rgba(255,255,255,.02); --prose:#cfd6e4 }
     *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;font-family:ui-sans-serif,-apple-system,system-ui,Segoe UI,Roboto,Noto Sans KR,Helvetica,Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
     .container{max-width:1080px;margin:0 auto;padding:28px}
@@ -47,11 +41,17 @@
     .post-thumb{aspect-ratio:16/9;background-size:cover;background-position:center;background-image:linear-gradient(135deg,#1e2634,#131a27)}
     .post-meta{padding:12px 12px 14px}.post-title{font-weight:900;color:var(--text);font-size:15px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .post-date{font-size:12px;color:#9aa0a6}
-    #postView{margin-top:16px}.article h1{font-size:28px;margin:0 0 10px;font-weight:900}
-    .article .meta{color:#9aa0a6;font-size:13px;margin-bottom:16px}.article .content{color:#cfd6e4;line-height:1.75}
-    .article .content h2{font-size:20px;margin:20px 0 6px}.article .content h3{font-size:17px;margin:16px 0 6px}
-    .article .content p{margin:10px 0}.article .content ul{margin:8px 0 12px 20px}.article .content li{margin:4px 0}
-    .article .content img{max-width:100%;height:auto;display:block;margin:12px auto;border-radius:12px}
+    #postView{margin-top:16px}
+    .article{overflow:hidden} /* clamp children inside rounded card */
+    .article h1{font-size:28px;margin:0 0 10px;font-weight:900}
+    .article .meta{color:#9aa0a6;font-size:13px;margin-bottom:16px}
+    .article .content{color:#cfd6e4;line-height:1.75;max-width:900px;margin:0 auto}
+    .article .content h2{font-size:20px;margin:20px 0 6px}
+    .article .content h3{font-size:17px;margin:16px 0 6px}
+    .article .content p{margin:10px 0}
+    .article .content ul{margin:8px 0 12px 20px}
+    .article .content li{margin:4px 0}
+    .article .content img{display:block;max-width:100%;width:100%;height:auto;box-sizing:border-box;border-radius:12px;margin:12px auto}
     .footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:#9aa0a6}
     .pill{padding:6px 10px;background:var(--panel-2);border:1px solid var(--ring);border-radius:999px;font-size:12px}.link{color:#8ab4f8;text-underline-offset:2px}
   </style>
@@ -267,15 +267,11 @@
   let POSTS=[];
   function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])) }
   function md2html(md){
-    let h = md.replace(/^###\s+(.+)$/gm,'<h3>$1</h3>')
-              .replace(/^##\s+(.+)$/gm,'<h2>$1</h2>')
-              .replace(/^#\s+(.+)$/gm,'<h1>$1</h1>');
-    h = h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-         .replace(/\*(.+?)\*/g,'<em>$1</em>');
+    let h = md.replace(/^###\s+(.+)$/gm,'<h3>$1</h3>').replace(/^##\s+(.+)$/gm,'<h2>$1</h2>').replace(/^#\s+(.+)$/gm,'<h1>$1</h1>');
+    h = h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
     h = h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" loading="lazy">');
     h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
-    h = h.replace(/(?:^|\n)-\s+(.+)(?=\n|$)/g,'\n<li>$1</li>');
-    h = h.replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');
+    h = h.replace(/(?:^|\n)-\s+(.+)(?=\n|$)/g,'\n<li>$1</li>'); h = h.replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');
     h = h.split(/\n{2,}/).map(x=>/^<h\d|<ul>|<li>|<img|<a/.test(x)?x:`<p>${x.trim()}</p>`).join('\n');
     return h;
   }
@@ -288,8 +284,7 @@
     grid.innerHTML='';
     POSTS.slice(0,12).forEach(p=>{
       const card=document.createElement('a');
-      card.href=`#p/${p.slug}`;
-      card.target='_blank'; card.rel='noopener'; // 새 탭
+      card.href=`#p/${p.slug}`; card.target='_blank'; card.rel='noopener'; // 새 탭
       card.className='post-card'; card.dataset.slug=p.slug;
       const styleThumb = p.thumb ? ` style="background-image:url('${p.thumb}');"` : '';
       card.innerHTML=`<div class="post-thumb"${styleThumb}></div>
