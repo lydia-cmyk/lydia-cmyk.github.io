@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lydia-cmyk.github.io/sitemap.xml
