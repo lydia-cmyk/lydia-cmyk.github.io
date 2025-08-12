@@ -54,13 +54,14 @@
     .article .content img{display:block;max-width:100%;width:100%;height:auto;box-sizing:border-box;border-radius:12px;margin:12px auto}
     .footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:#9aa0a6}
     .pill{padding:6px 10px;background:var(--panel-2);border:1px solid var(--ring);border-radius:999px;font-size:12px}.link{color:#8ab4f8;text-underline-offset:2px}
+  html{scroll-behavior:smooth}
   </style>
 </head>
 <body>
 <div class="container">
   <header class="site">
     <div class="brand"><div class="logo"><span>🍅</span></div><div class="wordmark">POMODORO+</div></div>
-    <nav><a href="#">홈</a><a href="#blog">블로그</a><a href="#about">소개</a><a href="#contact">연락처</a></nav>
+    <nav><a href="#" id="navHome">홈</a><a href="#blog" id="navBlog">블로그</a></nav>
   </header>
   <main>
     <section id="homeFlag" class="row">
@@ -284,15 +285,19 @@
     grid.innerHTML='';
     POSTS.slice(0,12).forEach(p=>{
       const card=document.createElement('a');
-      card.href=`#p/${p.slug}`; card.target='_blank'; card.rel='noopener'; // 새 탭
-      card.className='post-card'; card.dataset.slug=p.slug;
+      card.href=`#p/${p.slug}`; card.className='post-card'; card.dataset.slug=p.slug;
       const styleThumb = p.thumb ? ` style="background-image:url('${p.thumb}');"` : '';
       card.innerHTML=`<div class="post-thumb"${styleThumb}></div>
         <div class="post-meta">
           <div class="post-title">${escapeHtml(p.title||'제목 없음')}</div>
           <div class="post-date">${p.date?escapeHtml(p.date):''}</div>
         </div>`;
-      grid.appendChild(card);
+      card.addEventListener('click', (e)=>{
+      e.preventDefault();
+      location.hash = `#p/${p.slug}`;
+      setTimeout(()=> document.getElementById('postView')?.scrollIntoView({behavior:'smooth', block:'start'}), 60);
+    });
+    grid.appendChild(card);
     });
   }
   function showHome(){ $('#homeFlag').hidden=false; $('#blog').hidden=false; $('#postView').hidden=true; }
@@ -325,6 +330,19 @@
     on('#resetToday','click', ()=>{ if(confirm('오늘 기록을 초기화할까요?')){ resetTodayStats(); renderStats(); updateUI(); }});
     on('#resetAll','click', ()=>{ if(confirm('모든 데이터(작업/설정/기록)를 초기화할까요? 이 브라우저에서만 삭제됩니다.')){ resetAllData(); renderTasks(); renderStats(); updateUI(); }});
     window.addEventListener('hashchange', router);
+    on('#navBlog','click', (e)=>{
+      e.preventDefault();
+      location.hash='';
+      showHome();
+      document.getElementById('blog')?.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    on('#navHome','click', (e)=>{
+      e.preventDefault();
+      location.hash='';
+      showHome();
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+
     window.addEventListener('pointerdown', ()=>ensureAudio(), { once:true });
   }
   async function init(){ bind(); if(state.remainingMs>durationMs(state.mode)) state.remainingMs=durationMs(state.mode); updateUI(); renderTasks(); renderStats(); await loadPosts(); router(); }
