@@ -1,4 +1,4 @@
-// scripts/build.js
+// scripts/build.js - Markdown -> static pages + posts.json + sitemap + rss
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -48,8 +48,8 @@ function firstImage(md){
 }
 
 function pageHTML({title, date, body, url, thumb}){
-  const esc = s => s.replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const desc = body.replace(/<[^>]*>/g,' ').slice(0,140).trim();
+  const esc = s => String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const desc = String(body||'').replace(/<[^>]*>/g,' ').slice(0,140).trim();
   return `<!doctype html>
 <html lang="ko">
 <head>
@@ -64,7 +64,7 @@ function pageHTML({title, date, body, url, thumb}){
   <meta name="twitter:card" content="summary_large_image">
   ${thumb ? `<meta name="twitter:image" content="${thumb}">` : ''}
   <style>
-    :root{ --bg:#0a0c12; --text:#edf2f7; --ring:#2a2f3a }
+    :root{ --bg:#0a0c12; --text:#edf2f7 }
     *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,-apple-system,system-ui,Segoe UI,Roboto,Noto Sans KR,Helvetica,Arial}
     .container{max-width:980px;margin:0 auto;padding:24px}
     a{color:#8ab4f8;text-decoration:none} a:hover{text-decoration:underline}
@@ -112,7 +112,6 @@ async function main(){
     const html = mdToHtml(body);
     const url = `${SITE_URL}/p/${slug}/`;
 
-    // write page
     const outDir = path.join('p', slug);
     await fs.mkdir(outDir, { recursive:true });
     await fs.writeFile(path.join(outDir, 'index.html'), pageHTML({title, date, body:html, url, thumb}), 'utf-8');
@@ -132,7 +131,7 @@ ${urls}
 </urlset>`;
   await fs.writeFile('sitemap.xml', sm, 'utf-8');
 
-  // RSS
+  // rss.xml
   const items = posts.map(p=>`
   <item>
     <title>${p.title}</title>
