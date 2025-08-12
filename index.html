@@ -55,6 +55,54 @@
     .footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:#9aa0a6}
     .pill{padding:6px 10px;background:var(--panel-2);border:1px solid var(--ring);border-radius:999px;font-size:12px}.link{color:#8ab4f8;text-underline-offset:2px}
   html{scroll-behavior:smooth}
+  
+    /* ---- Glass + blurred city background ---- */
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background:url('assets/bg-city.jpg') center/cover no-repeat;
+      filter:blur(18px) saturate(120%) brightness(0.7);
+      transform:scale(1.06);            /* hide blur edges */
+      z-index:-2;
+    }
+    body::after{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(255,77,79,.15), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(138,180,248,.12), transparent 60%),
+        linear-gradient(180deg, rgba(8,10,16,.85), rgba(8,10,16,.92) 30%, rgba(8,10,16,.96));
+      z-index:-1;
+    }
+    /* glass card */
+    .card{
+      background:rgba(16,20,28,.42);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+      -webkit-backdrop-filter:blur(18px) saturate(140%);
+      backdrop-filter:blur(18px) saturate(140%);
+    }
+    /* glass header bar */
+    header.site{
+      background:rgba(16,20,28,.38);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:10px 14px;
+      -webkit-backdrop-filter:blur(18px) saturate(140%);
+      backdrop-filter:blur(18px) saturate(140%);
+      box-shadow:0 6px 24px rgba(0,0,0,.35);
+    }
+    /* adjust tab and buttons to look more floating */
+    .tab{ background:rgba(20,24,34,.55); border-color:rgba(255,255,255,.10) }
+    .tab[aria-pressed="true"], .tab[aria-selected="true"]{
+      background:rgba(30,38,54,.7); outline-color:rgba(255,255,255,.14)
+    }
+    button{ background:rgba(26,31,43,.6); border-color:rgba(255,255,255,.10) }
+    .primary{ background:linear-gradient(180deg,#ff5a5c,#ff4043); border-color:#b3262e }
+    /* blog post card glass */
+    .post-card{ background:rgba(16,20,28,.42); border-color:rgba(255,255,255,.08) }
+    /* ring shadow tweak to float */
+    .ring{ filter:drop-shadow(0 14px 30px rgba(255,77,79,.18)) }
   </style>
 </head>
 <body>
@@ -271,7 +319,7 @@
     let h = md.replace(/^###\s+(.+)$/gm,'<h3>$1</h3>').replace(/^##\s+(.+)$/gm,'<h2>$1</h2>').replace(/^#\s+(.+)$/gm,'<h1>$1</h1>');
     h = h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
     h = h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" loading="lazy">');
-    h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+    h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2"  >$1</a>');
     h = h.replace(/(?:^|\n)-\s+(.+)(?=\n|$)/g,'\n<li>$1</li>'); h = h.replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');
     h = h.split(/\n{2,}/).map(x=>/^<h\d|<ul>|<li>|<img|<a/.test(x)?x:`<p>${x.trim()}</p>`).join('\n');
     return h;
@@ -283,22 +331,28 @@
       POSTS=[{slug:'hello',title:'샘플 글',date:'2025-08-01',md:'# 샘플\n\n![샘플 이미지](assets/desk-setup.jpg)'}];
     }
     grid.innerHTML='';
-    POSTS.slice(0,12).forEach(p=>{
-      const card=document.createElement('a');
-      card.href=`#p/${p.slug}`; card.className='post-card'; card.dataset.slug=p.slug;
-      const styleThumb = p.thumb ? ` style="background-image:url('${p.thumb}');"` : '';
-      card.innerHTML=`<div class="post-thumb"${styleThumb}></div>
-        <div class="post-meta">
-          <div class="post-title">${escapeHtml(p.title||'제목 없음')}</div>
-          <div class="post-date">${p.date?escapeHtml(p.date):''}</div>
-        </div>`;
-      card.addEventListener('click', (e)=>{
-      e.preventDefault();
-      location.hash = `#p/${p.slug}`;
-      setTimeout(()=> document.getElementById('postView')?.scrollIntoView({behavior:'smooth', block:'start'}), 60);
-    });
-    grid.appendChild(card);
-    });
+    
+POSTS.slice(0,12).forEach(p=>{
+  const card = document.createElement('a');
+  card.href = `#p/${p.slug}`;
+  card.className = 'post-card';
+  const styleThumb = p.thumb ? ` style="background-image:url('${p.thumb}');"` : '';
+  card.innerHTML = `<div class="post-thumb"${styleThumb}></div>
+    <div class="post-meta">
+      <div class="post-title">${escapeHtml(p.title||'제목 없음')}</div>
+      <div class="post-date">${p.date?escapeHtml(p.date):''}</div>
+    </div>`;
+  // Inline open (no new tab)
+  card.addEventListener('click', (e)=>{
+    e.preventDefault();
+    showPost(p.slug);
+    // keep URL hash for share/refresh
+    location.hash = `#p/${p.slug}`;
+    setTimeout(()=> document.getElementById('postView')?.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+  });
+  grid.appendChild(card);
+});
+
   }
   function showHome(){ $('#homeFlag').hidden=false; $('#blog').hidden=false; $('#postView').hidden=true; }
   function showPost(slug){
