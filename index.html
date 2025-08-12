@@ -380,7 +380,7 @@ POSTS.slice(0,12).forEach(p=>{
     on('#sound','change', e=>{ state.sound=e.target.checked; persist(); });
     on('#notify','change', e=>{ state.notify=e.target.checked; if(e.target.checked && Notification && Notification.permission!=='granted') Notification.requestPermission(); persist(); });
     on('#volume','input', e=>{ state.volume=Number(e.target.value); persist(); });
-    on('#backHome','click', (e)=>{ e.preventDefault(); location.hash=''; });
+    on('#backHome','click', (e)=>{ e.preventDefault(); showHome(); document.getElementById('blog')?.scrollIntoView({behavior:'smooth', block:'start'}); history.replaceState(null,'', location.pathname + location.search); });
     on('#resetToday','click', ()=>{ if(confirm('오늘 기록을 초기화할까요?')){ resetTodayStats(); renderStats(); updateUI(); }});
     on('#resetAll','click', ()=>{ if(confirm('모든 데이터(작업/설정/기록)를 초기화할까요? 이 브라우저에서만 삭제됩니다.')){ resetAllData(); renderTasks(); renderStats(); updateUI(); }});
     window.addEventListener('hashchange', router);
