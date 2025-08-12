@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>POMODORO+ · 집중 타이머 & 공부 기록</title>
-  <meta name="description" content="뽀모도로 타이머와 학습 노하우. 애드센스 승인 대비 정적 프리뷰." />
+  <meta name="description" content="뽀모도로 타이머와 학습 노하우. 이미지/마크다운 지원 블로그 포함." />
   <style>
     :root{
       --bg:#0a0c12; --panel:#10131b; --panel-2:#151a24;
@@ -51,6 +51,7 @@
     .article .meta{color:#9aa0a6;font-size:13px;margin-bottom:16px}.article .content{color:#cfd6e4;line-height:1.75}
     .article .content h2{font-size:20px;margin:20px 0 6px}.article .content h3{font-size:17px;margin:16px 0 6px}
     .article .content p{margin:10px 0}.article .content ul{margin:8px 0 12px 20px}.article .content li{margin:4px 0}
+    .article .content img{max-width:100%;height:auto;display:block;margin:12px auto;border-radius:12px}
     .footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:#9aa0a6}
     .pill{padding:6px 10px;background:var(--panel-2);border:1px solid var(--ring);border-radius:999px;font-size:12px}.link{color:#8ab4f8;text-underline-offset:2px}
   </style>
@@ -148,6 +149,7 @@
 
   <div class="footer">
     <div class="small">© POMODORO+ · 학습 생산성 블로그 & 타이머</div>
+    <div class="small">이 프리뷰는 단일 파일이야. 실제 사이트 패키지는 별도 제공.</div>
   </div>
 </div>
 
@@ -158,6 +160,7 @@
   const fmt2 = n=>String(n).padStart(2,'0');
   const todayKey = ()=> new Date().toISOString().slice(0,10);
 
+  // Audio & Notification
   let audioCtx=null; let audioUnlocked=false;
   function ensureAudio(){ try{ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } audioUnlocked=true; }catch(e){ console.warn('Audio init failed', e); } }
   function playChime(kind='done'){
@@ -175,6 +178,7 @@
   }
   function notifyUser(title, body){ if(!state.notify) return; try{ if('Notification' in window && Notification.permission==='granted'){ new Notification(title,{ body }); } }catch(e){} }
 
+  // Timer state
   const defaultState = { mode:'focus', durations:{focus:25, short:5, long:15}, longInterval:4, completedFocus:0, remainingMs:25*60*1000, isRunning:false, autoStartBreaks:true, autoStartFocus:false, sound:true, volume:0.4, notify:true, selectedTaskId:null };
   let state = Object.assign({}, defaultState, store.get('pomo:state', {}));
   let tasks = store.get('pomo:tasks', []);
@@ -235,7 +239,7 @@
       const item=document.createElement('div'); item.className='task-item'; item.setAttribute('aria-current', state.selectedTaskId===t.id);
       item.innerHTML=`
     <input type="radio" name="sel" ${state.selectedTaskId===t.id?'checked':''} aria-label="현재 작업 선택"/>
-    <div class="task-title">${t.title} <span class="muted small">(${t.done||0}/${t.est})</span></div>
+    <div class="task-title">${escapeHtml(t.title)} <span class="muted small">(${t.done||0}/${t.est})</span></div>
     <div class="task-actions">
       <button class="ok" title="완료 1 증가">+1</button>
       <button class="ghost" title="수정">편집</button>
@@ -259,42 +263,48 @@
     const se=$('#streak'); if(se) se.textContent=`${streak}일 연속`;
   }
 
+  // Blog loader + Router (with images/links + new tab cards)
   let POSTS=[];
   function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])) }
   function md2html(md){
-    let h=md.replace(/^###\s+(.+)$/gm,'<h3>$1</h3>').replace(/^##\s+(.+)$/gm,'<h2>$1</h2>').replace(/^#\s+(.+)$/gm,'<h1>$1</h1>');
-    h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
-    h=h.replace(/(?:^|\n)-\s+(.+)(?=\n|$)/g,'\n<li>$1</li>'); h=h.replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');
-    h=h.split(/\n{2,}/).map(x=>/^<h\d|<ul>|<li>/.test(x)?x:`<p>${x.trim()}</p>`).join('\n'); return h;
+    let h = md.replace(/^###\s+(.+)$/gm,'<h3>$1</h3>')
+              .replace(/^##\s+(.+)$/gm,'<h2>$1</h2>')
+              .replace(/^#\s+(.+)$/gm,'<h1>$1</h1>');
+    h = h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+         .replace(/\*(.+?)\*/g,'<em>$1</em>');
+    h = h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" loading="lazy">');
+    h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+    h = h.replace(/(?:^|\n)-\s+(.+)(?=\n|$)/g,'\n<li>$1</li>');
+    h = h.replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');
+    h = h.split(/\n{2,}/).map(x=>/^<h\d|<ul>|<li>|<img|<a/.test(x)?x:`<p>${x.trim()}</p>`).join('\n');
+    return h;
   }
   async function loadPosts(){
     const grid=$('#blogGrid'); if(!grid) return;
     try{ const res=await fetch('/posts.json',{cache:'no-store'}); if(res.ok) POSTS=await res.json(); }catch(_){ POSTS=[] }
     if(!Array.isArray(POSTS) || POSTS.length===0){
-      const sampleHtml = (title)=>`<h1>${title}</h1><p>이건 샘플 본문이야. <b>posts.json</b>을 만들면 여기에 네 글이 표시돼.</p><h2>예시 섹션</h2><ul><li>포커스 25분</li><li>짧은 휴식 5분</li><li>네 번째 후 긴 휴식 15분</li></ul>`;
-      POSTS=[
-        {slug:'start-pomodoro', title:'뽀모도로 시작 가이드: 첫 7일 로드맵', date:'2025-08-01', html:sampleHtml('뽀모도로 시작 가이드'), thumb:''},
-        {slug:'deep-work-setup', title:'집중 환경 셋업: 책상 위 5가지만 남겨', date:'2025-08-02', html:sampleHtml('집중 환경 셋업'), thumb:''},
-        {slug:'fail-reasons', title:'뽀모도로가 자꾸 실패하는 6가지 이유', date:'2025-08-03', html:sampleHtml('실패 원인'), thumb:''},
-        {slug:'weekly-review', title:'주간 회고 템플릿: 30분이면 충분', date:'2025-08-05', html:sampleHtml('주간 회고 템플릿'), thumb:''},
-        {slug:'d30-exam', title:'시험 D-30 전략: 프리셋과 분배', date:'2025-08-06', html:sampleHtml('시험 D-30 전략'), thumb:''},
-        {slug:'slump-fix', title:'슬럼프 극복: 관성 되찾는 최소 행동', date:'2025-08-11', html:sampleHtml('슬럼프 극복'), thumb:''}
-      ];
+      POSTS=[{slug:'hello',title:'샘플 글',date:'2025-08-01',md:'# 샘플\n\n![샘플 이미지](assets/desk-setup.jpg)'}];
     }
     grid.innerHTML='';
-    POSTS.slice(0,6).forEach(p=>{
+    POSTS.slice(0,12).forEach(p=>{
       const card=document.createElement('a');
-      card.href=`#p/${p.slug}`; card.className='post-card'; card.dataset.slug=p.slug; card.setAttribute('aria-label', p.title||'글');
-      card.innerHTML=`<div class="post-thumb"></div><div class="post-meta"><div class="post-title">${(p.title||'제목 없음')}</div><div class="post-date">${p.date||''}</div></div>`;
+      card.href=`#p/${p.slug}`;
+      card.target='_blank'; card.rel='noopener'; // 새 탭
+      card.className='post-card'; card.dataset.slug=p.slug;
+      const styleThumb = p.thumb ? ` style="background-image:url('${p.thumb}');"` : '';
+      card.innerHTML=`<div class="post-thumb"${styleThumb}></div>
+        <div class="post-meta">
+          <div class="post-title">${escapeHtml(p.title||'제목 없음')}</div>
+          <div class="post-date">${p.date?escapeHtml(p.date):''}</div>
+        </div>`;
       grid.appendChild(card);
     });
   }
-
   function showHome(){ $('#homeFlag').hidden=false; $('#blog').hidden=false; $('#postView').hidden=true; }
   function showPost(slug){
     const p = POSTS.find(x=>x.slug===slug); if(!p){ showHome(); return; }
     const wrap=$('#article');
-    const title=`<h1>${(p.title)}</h1><div class="meta">${(p.date||'')}</div>`;
+    const title=`<h1>${escapeHtml(p.title)}</h1><div class="meta">${escapeHtml(p.date||'')}</div>`;
     let body=''; if(p.html) body=p.html; else if(p.md) body=md2html(p.md); else body='<p>본문이 준비되지 않았어.</p>';
     wrap.innerHTML= title + `<div class="content">${body}</div>`;
     $('#homeFlag').hidden=true; $('#blog').hidden=true; $('#postView').hidden=false;
@@ -322,7 +332,6 @@
     window.addEventListener('hashchange', router);
     window.addEventListener('pointerdown', ()=>ensureAudio(), { once:true });
   }
-
   async function init(){ bind(); if(state.remainingMs>durationMs(state.mode)) state.remainingMs=durationMs(state.mode); updateUI(); renderTasks(); renderStats(); await loadPosts(); router(); }
   document.addEventListener('DOMContentLoaded', init);
 </script>
