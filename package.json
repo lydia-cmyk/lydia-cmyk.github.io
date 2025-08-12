@@ -1,0 +1,9 @@
+{
+  "name": "pomo-md-cms",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "build:posts": "node scripts/build.js"
+  }
+}
