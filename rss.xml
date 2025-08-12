@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>POMODORO+ Blog</title>
+    <link>https://lydia-cmyk.github.io/</link>
+    <description>Pomodoro tips and study notes</description>
+
+  <item>
+    <title>"뽀모도로란? 25분 집중이 성과를 바꾸는 이유(초보 가이드)"</title>
+    <link>https://lydia-cmyk.github.io/p/what-is-pomodoro/</link>
+    <guid>https://lydia-cmyk.github.io/p/what-is-pomodoro/</guid>
+    <pubDate>Wed, 13 Aug 2025 00:00:00 GMT</pubDate>
+  </item>
+
+  <item>
+    <title>"테스트 글"</title>
+    <link>https://lydia-cmyk.github.io/p/test/</link>
+    <guid>https://lydia-cmyk.github.io/p/test/</guid>
+    <pubDate>Wed, 13 Aug 2025 00:00:00 GMT</pubDate>
+  </item>
+
+  <item>
+    <title>"샘플 글: 마크다운으로 발행하기"</title>
+    <link>https://lydia-cmyk.github.io/p/sample-post/</link>
+    <guid>https://lydia-cmyk.github.io/p/sample-post/</guid>
+    <pubDate>Wed, 13 Aug 2025 00:00:00 GMT</pubDate>
+  </item>
+
+  <item>
+    <title>"첫 포스트: 집중 루틴 만들기"</title>
+    <link>https://lydia-cmyk.github.io/p/focus-routine/</link>
+    <guid>https://lydia-cmyk.github.io/p/focus-routine/</guid>
+    <pubDate>Wed, 13 Aug 2025 00:00:00 GMT</pubDate>
+  </item>
+  </channel>
+</rss>
