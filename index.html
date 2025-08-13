@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>POMODORO+ · 집중 타이머 & 공부 기록</title>
-  <meta name="description" content="뽀모도로 타이머와 학습 노하우. 이미지/마크다운 지원 블로그 포함." />
+  <meta name="description" content="뽀모도로 타이머와 학습 노하우. 우측 패널에서 바로 글 열람 (캔버스 내장 posts.json 지원)" />
   <style>
     :root{ --bg:#0a0c12; --panel:#10131b; --panel-2:#151a24; --text:#edf2f7; --muted:#9aa0a6; --acc:#ff4d4f; --ring:#2a2f3a; --glow1:0 0 32px rgba(255,77,79,.22),0 0 8px rgba(255,77,79,.35); --glow2:0 0 36px rgba(138,180,248,.18), inset 0 0 0 1px rgba(255,255,255,.02); --prose:#cfd6e4 }
     *{box-sizing:border-box} html,body{height:100%}
@@ -36,172 +36,31 @@
     .tasks{flex:1 1 320px}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     input[type="text"],input[type="number"],input[type="range"]{width:100%;background:#0e1220;color:#fff;border:1px solid #2a3140;border-radius:10px;padding:10px}
     label{font-size:12px;color:#b2bac7;display:block;margin-bottom:6px}
+
+    /* blog list cards */
     .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
     .post-card{display:block;overflow:hidden;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,#11151e,#0e121b)}
     .post-thumb{aspect-ratio:16/9;background-size:cover;background-position:center;background-image:linear-gradient(135deg,#1e2634,#131a27)}
     .post-meta{padding:12px 12px 14px}.post-title{font-weight:900;color:var(--text);font-size:15px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .post-date{font-size:12px;color:#9aa0a6}
+
+    /* old full article card (kept but unused) */
     #postView{margin-top:16px}
-    .article{overflow:hidden}
-    .article h1{font-size:28px;margin:0 0 10px;font-weight:900}
-    .article .meta{color:#9aa0a6;font-size:13px;margin-bottom:16px}
-    .article .content{color:#cfd6e4;line-height:1.75;max-width:900px;margin:0 auto}
-    .article .content h2{font-size:20px;margin:20px 0 6px}
-    .article .content h3{font-size:17px;margin:16px 0 6px}
-    .article .content p{margin:10px 0}
-    .article .content ul{margin:8px 0 12px 20px}
-    .article .content li{margin:4px 0}
 
-/* ==== Blog inline article (right sidebar) ==== */
-#blog .blog-article{ margin-top:8px }
-#blog .blog-article .meta{ color:#9aa0a6; font-size:13px; margin:0 0 10px }
-#blog .blog-article .content{ color:#cfd6e4; line-height:1.75 }
-#blog .blog-article h1{ font-size:22px; margin:0 0 6px; font-weight:900 }
-#blog .blog-article img{ display:block; max-width:100%; width:100%; height:auto; border-radius:12px; margin:10px 0 }
-    .article .content img{display:block;max-width:100%;width:100%;height:auto;box-sizing:border-box;border-radius:12px;margin:12px auto}
-    .footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:#9aa0a6}
-    .pill{padding:6px 10px;background:var(--panel-2);border:1px solid var(--ring);border-radius:999px;font-size:12px}.link{color:#8ab4f8;text-underline-offset:2px}
-  html{scroll-behavior:smooth}
-  
-    /* ---- Glass + blurred city background ---- */
-    body::before{
-  content:"";
-  position:fixed; inset:0;
-  background:url('assets/bg-city.jpg?v=3') center/cover no-repeat;
-  filter:blur(16px) saturate(120%) brightness(1.12);
-  transform:scale(1.06);
-  z-index:-2;
-}
-    body::after{
-  content:"";
-  position:fixed; inset:0;
-  background:
-    radial-gradient(1200px 600px at 20% -10%, rgba(255,77,79,.06), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, rgba(138,180,248,.05), transparent 60%),
-    linear-gradient(180deg, rgba(8,10,16,.44), rgba(8,10,16,.56) 30%, rgba(8,10,16,.64));
-  z-index:-1;
-}
-    /* glass card */
-    .card{
-      background:rgba(16,20,28,.42);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
-      -webkit-backdrop-filter:blur(18px) saturate(140%);
-      backdrop-filter:blur(18px) saturate(140%);
+    /* inline article styles (right sidebar) */
+    #blog .blog-article{ margin-top:8px }
+    #blog .blog-article .meta{ color:#9aa0a6; font-size:13px; margin:0 0 10px }
+    #blog .blog-article .content{ color:#cfd6e4; line-height:1.75 }
+    #blog .blog-article h1{ font-size:22px; margin:0 0 6px; font-weight:900 }
+    #blog .blog-article img{ display:block; max-width:100%; width:100%; height:auto; border-radius:12px; margin:10px 0 }
+
+    /* layout: right sidebar */
+    @media (min-width:1120px){
+      main{ display:grid; grid-template-columns:1fr 360px; gap:18px; align-items:start }
+      #homeFlag, main > .row, #postView{ grid-column:1 }
+      #blog{ grid-column:2; grid-row:1 / span 3; position:sticky; top:84px; margin-top:0 !important; align-self:start }
+      #blog .blog-grid{ grid-template-columns:1fr }
     }
-    /* glass header bar */
-    header.site{
-      background:rgba(16,20,28,.38);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:16px;
-      padding:10px 14px;
-      -webkit-backdrop-filter:blur(18px) saturate(140%);
-      backdrop-filter:blur(18px) saturate(140%);
-      box-shadow:0 10px 36px rgba(0,0,0,.52), 0 2px 8px rgba(0,0,0,.25);
-    }
-    /* adjust tab and buttons to look more floating */
-    .tab{ background:rgba(20,24,34,.55); border-color:rgba(255,255,255,.10) }
-    .tab[aria-pressed="true"], .tab[aria-selected="true"]{
-      background:rgba(30,38,54,.7); outline-color:rgba(255,255,255,.14)
-    }
-    button{ background:rgba(26,31,43,.6); border-color:rgba(255,255,255,.10) }
-    .primary{ background:linear-gradient(180deg,#ff5a5c,#ff4043); border-color:#b3262e }
-    /* blog post card glass */
-    .post-card{ background:rgba(16,20,28,.42); border-color:rgba(255,255,255,.08) }
-    /* ring shadow tweak to float */
-    .ring{ filter:drop-shadow(0 14px 30px rgba(255,77,79,.18)) }
-  
-/* ==== Control Center style tweaks ==== */
-:root{
-  --tile-bg: rgba(20,24,34,.42);
-  --tile-border: rgba(255,255,255,.10);
-  --tile-highlight: rgba(255,255,255,.18);
-  --tile-shadow: rgba(0,0,0,.45);
-  --radius-xl: 24px;
-  --radius-2xl: 28px;
-}
-.container{padding:22px 22px env(safe-area-inset-bottom);} 
-header.site{
-  border-radius:20px;
-  padding:10px 14px;
-}
-.card{
-  background:var(--tile-bg);
-  border:1px solid var(--tile-border);
-  border-radius:var(--radius-2xl);
-  box-shadow:
-    0 28px 80px rgba(0,0,0,.58),
-    0 10px 30px rgba(0,0,0,.35),
-    inset 0 0 0 1px rgba(255,255,255,.03),
-    inset 0 10px 30px rgba(255,255,255,.05);
-  position:relative;
-  overflow:hidden;
-}
-.card::before{
-  content:"";
-  position:absolute; inset:0;
-  background: radial-gradient(140% 70% at 20% -10%, rgba(255,255,255,.06), transparent 60%);
-  pointer-events:none;
-}
-.timer-card .controls button,
-button{
-  border-radius:16px;
-  padding:12px 16px;
-}
-.primary{
-  background: linear-gradient(180deg,#ff5a5c,#ff3b3d);
-}
-.tabs{
-  background: rgba(255,255,255,.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding:6px;
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,.08);
-}
-.tab{
-  background: transparent;
-  border: none;
-  padding:9px 14px;
-}
-.tab[aria-pressed="true"], .tab[aria-selected="true"]{
-  background: rgba(255,255,255,.14);
-  color:#fff;
-  border-radius:12px;
-}
-.controls .ghost{ background: rgba(255,255,255,.08); }
-.post-card{
-  border-radius:20px;
-  box-shadow: 0 24px 60px rgba(0,0,0,.52), 0 8px 20px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.05);
-}
-.post-thumb{ border-bottom-left-radius:0;border-bottom-right-radius:0 }
-.article{ border-radius:24px }
-@media (max-width:520px){ .ring{ width:300px;height:300px } .mmss{ font-size:56px } }
-
-/* --- center time exactly in the ring --- */
-.ring{ position:relative; }
-.time{ position:absolute; inset:0; }
-.time .mmss{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
-.time .mode{ position:absolute; top:65%; left:50%; transform:translateX(-50%); }
-.mmss{ line-height:1; }
-
-/* elevate cards slightly on hover for more depth */
-.card:hover{ transform: translateY(-2px); transition: transform .18s ease, box-shadow .18s ease; }
-.post-card:hover{ transform: translateY(-2px); transition: transform .18s ease, box-shadow .18s ease; }
-
-/* ====== ⬇️ CSS-only: BLOG → right sidebar (desktop) ====== */
-@media (min-width: 1120px){
-  /* 페이지를 본문(왼쪽) + 사이드바(오른쪽) 2열 그리드로 */
-  main{ display:grid; grid-template-columns: 1fr 360px; gap:18px; align-items:start; }
-  /* 왼쪽 본문 컬럼에는 기존 섹션들 그대로 */
-  #homeFlag,
-  main > .row,
-  #postView{ grid-column:1; }
-  /* 블로그 영역만 오른쪽 사이드바로 */
-  #blog{ grid-column:2; grid-row:1 / span 3; position:sticky; top:84px; margin-top:0 !important; align-self:start; }
-  /* 사이드바 폭에서 카드 1열로 */
-  #blog .blog-grid{ grid-template-columns: 1fr; }
-}
   </style>
 </head>
 <body>
@@ -210,6 +69,7 @@ button{
     <div class="brand"><div class="logo"><span>🍅</span></div><div class="wordmark">POMODORO+</div></div>
     <nav><a href="#" id="navHome">홈</a><a href="#blog" id="navBlog">블로그</a></nav>
   </header>
+
   <main>
     <section id="homeFlag" class="row">
       <section class="card timer-card" aria-label="타이머">
@@ -220,9 +80,7 @@ button{
         </div>
         <div class="ring" aria-live="polite">
           <svg width="100%" height="100%" viewBox="0 0 300 300" aria-hidden="true">
-            <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#ff8a80"/><stop offset="100%" stop-color="#ff4d4f"/>
-            </linearGradient></defs>
+            <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff8a80"/><stop offset="100%" stop-color="#ff4d4f"/></linearGradient></defs>
             <circle cx="150" cy="150" r="140" fill="none" stroke="var(--ring)" stroke-width="16" />
             <circle id="ring" cx="150" cy="150" r="140" fill="none" stroke="url(#grad)" stroke-width="16" stroke-linecap="round" stroke-dasharray="0" stroke-dashoffset="0"/>
           </svg>
@@ -236,6 +94,7 @@ button{
         </div>
         <div class="muted small" style="margin-top:8px">오늘 완료한 집중: <span id="completed">0</span>회</div>
       </section>
+
       <section class="card tasks" aria-label="작업">
         <h3>작업</h3>
         <div class="grid-2" style="margin-bottom:8px">
@@ -283,20 +142,22 @@ button{
       </section>
     </section>
 
+    <!-- Right sidebar blog block -->
     <section class="card" aria-label="최근 게시글" id="blog" style="margin-top:16px">
       <h3>최근 글</h3>
-      <!-- 목록 영역 -->
+      <!-- 목록 -->
       <div id="blogList">
         <div class="blog-grid" id="blogGrid" aria-live="polite"></div>
         <div style="margin-top:10px"><a href="#" class="link">모든 글 보기 →</a></div>
       </div>
-      <!-- 글 보기 영역 (오른쪽 사이드바 안에서 바로 표시) -->
+      <!-- 글 보기 (우측 패널에서 즉시 표시) -->
       <div id="blogArticleWrap" class="blog-article" hidden>
         <div class="meta"><a href="#" id="blogBack" class="link">← 목록으로</a></div>
         <article class="content" id="blogArticle"></article>
       </div>
     </section>
 
+    <!-- 기존 전체 본문 카드(미사용, 호환성 유지) -->
     <section id="postView" class="card article" hidden>
       <div class="meta"><a href="#" id="backHome" class="link">← 목록으로</a></div>
       <article class="content" id="article"></article>
@@ -305,234 +166,128 @@ button{
 
   <div class="footer">
     <div class="small">© POMODORO+ · 학습 생산성 블로그 & 타이머</div>
-    
+    <div class="small">캔버스 전용 프리뷰 — 실제 배포에선 /posts.json을 불러옵니다.</div>
   </div>
 </div>
 
+<!-- ✅ 캔버스/로컬에서도 글이 보이게 하려면: 여기 JSON 배열에 posts.json 내용을 붙여넣기 -->
+<script id="postsInline" type="application/json">[
+  
+]</script>
+
 <script>
-  const $ = (s)=>document.querySelector(s);
-  const $$ = (s)=>document.querySelectorAll(s);
-  const store = { get(k, d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d }catch(_){ return d } }, set(k, v){ localStorage.setItem(k, JSON.stringify(v)) } };
-  const fmt2 = n=>String(n).padStart(2,'0');
-  const todayKey = ()=> new Date().toISOString().slice(0,10);
+  const $=(s)=>document.querySelector(s); const $$=(s)=>document.querySelectorAll(s);
+  const store={ get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(_){return d}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))} };
+  const fmt2=n=>String(n).padStart(2,'0'); const todayKey=()=>new Date().toISOString().slice(0,10);
 
-  // Audio & Notification
-  let audioCtx=null; let audioUnlocked=false;
-  function ensureAudio(){ try{ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } audioUnlocked=true; }catch(e){ console.warn('Audio init failed', e); } }
-  function playChime(kind='done'){
-    if(!state.sound || !audioCtx || !audioUnlocked) return;
-    const vol = Math.max(0, Math.min(1, state.volume||0.4));
-    function tone(freq, dur, start){
-      const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
-      osc.type='sine'; osc.frequency.value=freq; osc.connect(g); g.connect(audioCtx.destination);
-      const t0 = audioCtx.currentTime + (start||0);
-      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol*0.35, t0+0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
-      osc.start(t0); osc.stop(t0+dur+0.05);
-    }
-    if(kind==='focusEnd'){ tone(880,0.12,0.00); tone(1175,0.12,0.15); }
-    else { tone(523.25,0.10,0.00); tone(659.25,0.10,0.12); tone(783.99,0.12,0.24); }
-  }
-  function notifyUser(title, body){ if(!state.notify) return; try{ if('Notification' in window && Notification.permission==='granted'){ new Notification(title,{ body }); } }catch(e){} }
+  let audioCtx=null,audioUnlocked=false; function ensureAudio(){try{if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)()} if(audioCtx.state==='suspended'){audioCtx.resume()} audioUnlocked=true}catch(e){console.warn('Audio init failed',e)}}
+  function playChime(kind='done'){ if(!state.sound||!audioCtx||!audioUnlocked) return; const vol=Math.max(0,Math.min(1,state.volume||0.4)); function tone(f,d,s){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);const t0=audioCtx.currentTime+(s||0);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol*0.35,t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+d);o.start(t0);o.stop(t0+d+0.05)} if(kind==='focusEnd'){tone(880,0.12,0);tone(1175,0.12,0.15)} else {tone(523.25,0.10,0);tone(659.25,0.10,0.12);tone(783.99,0.12,0.24)} }
+  function notifyUser(t,b){ if(!state.notify) return; try{ if('Notification' in window && Notification.permission==='granted'){ new Notification(t,{body:b}) } }catch(e){} }
 
-  // Timer state
-  const defaultState = { mode:'focus', durations:{focus:25, short:5, long:15}, longInterval:4, completedFocus:0, remainingMs:25*60*1000, isRunning:false, autoStartBreaks:true, autoStartFocus:false, sound:true, volume:0.4, notify:true, selectedTaskId:null };
-  let state = Object.assign({}, defaultState, store.get('pomo:state', {}));
-  let tasks = store.get('pomo:tasks', []);
-  let stats = store.get('pomo:stats', {});
-  let endAt=null, rafId=null;
+  const defaultState={mode:'focus',durations:{focus:25,short:5,long:15},longInterval:4,completedFocus:0,remainingMs:25*60*1000,isRunning:false,autoStartBreaks:true,autoStartFocus:false,sound:true,volume:0.4,notify:true,selectedTaskId:null};
+  let state=Object.assign({},defaultState,store.get('pomo:state',{})); let tasks=store.get('pomo:tasks',[]); let stats=store.get('pomo:stats',{}); let endAt=null,rafId=null;
+  function durationMs(m){return (state.durations[m]||25)*60*1000} function persist(){store.set('pomo:state',state)}
+  function addStat(k,d){const t=todayKey(),b=stats[t]||{sessions:0,focusMs:0}; if(k==='sessions') b.sessions=(b.sessions|0)+d; else b[k]=(b[k]||0)+d; stats[t]=b; store.set('pomo:stats',stats); renderStats() }
+  const getTodaySessions=()=> (stats[todayKey()]?.sessions|0);
+  function resetTodayStats(){ const k=todayKey(); stats[k]={sessions:0,focusMs:0}; store.set('pomo:stats',stats) }
+  function resetAllData(){ localStorage.removeItem('pomo:state'); localStorage.removeItem('pomo:tasks'); localStorage.removeItem('pomo:stats'); state=Object.assign({},defaultState); tasks=[]; stats={}; persist() }
 
-  function durationMs(mode){ return (state.durations[mode]||25)*60*1000 }
-  function persist(){ store.set('pomo:state', state) }
-  function addStat(key, delta){
-    const k=todayKey(); const base=stats[k]||{sessions:0, focusMs:0};
-    if(key==='sessions') base.sessions=(base.sessions|0)+delta; else base[key]=(base[key]||0)+delta;
-    stats[k]=base; store.set('pomo:stats', stats); renderStats();
-  }
-  const getTodaySessions = ()=> (stats[todayKey()]?.sessions|0);
-  function resetTodayStats(){ const k=todayKey(); stats[k]={sessions:0, focusMs:0}; store.set('pomo:stats', stats); }
-  function resetAllData(){ localStorage.removeItem('pomo:state'); localStorage.removeItem('pomo:tasks'); localStorage.removeItem('pomo:stats'); state=Object.assign({}, defaultState); tasks=[]; stats={}; persist(); }
+  function setMode(m){ state.mode=m; state.remainingMs=durationMs(m); state.isRunning=false; endAt=null; clearInterval(rafId); persist(); updateUI() }
+  function start(){ if(state.isRunning) return; state.isRunning=true; endAt=Date.now()+state.remainingMs; tick(); rafId=setInterval(tick,200); persist() }
+  function pause(){ if(!state.isRunning) return; state.isRunning=false; state.remainingMs=Math.max(0,endAt-Date.now()); clearInterval(rafId); rafId=null; persist(); updateUI() }
+  function reset(){ state.isRunning=false; state.remainingMs=durationMs(state.mode); clearInterval(rafId); rafId=null; endAt=null; persist(); updateUI() }
+  function completeSession(){ if(state.mode==='focus'){ playChime('focusEnd'); notifyUser('집중 종료','휴식 시간을 시작합니다.'); state.completedFocus++; addStat('sessions',1); addStat('focusMs',durationMs('focus')); if(state.selectedTaskId){ const t=tasks.find(t=>t.id===state.selectedTaskId); if(t){ t.done=Math.min((t.done||0)+1, t.est||99); saveTasks(); renderTasks() } } const nextIsLong=(state.completedFocus%state.longInterval)===0; setMode(nextIsLong?'long':'short'); if(state.autoStartBreaks) start(); } else { playChime('breakEnd'); notifyUser('휴식 종료','다음 집중을 시작합니다.'); setMode('focus'); if(state.autoStartFocus) start() } persist() }
+  function next(){ completeSession() }
+  function tick(){ const left=endAt-Date.now(); if(left<=0){ state.remainingMs=0; updateUI(); clearInterval(rafId); rafId=null; completeSession(); return } state.remainingMs=left; updateUI() }
 
-  function setMode(mode){ state.mode=mode; state.remainingMs=durationMs(mode); state.isRunning=false; endAt=null; clearInterval(rafId); persist(); updateUI(); }
-  function start(){ if(state.isRunning) return; state.isRunning=true; endAt=Date.now()+state.remainingMs; tick(); rafId=setInterval(tick,200); persist(); }
-  function pause(){ if(!state.isRunning) return; state.isRunning=false; state.remainingMs=Math.max(0,endAt-Date.now()); clearInterval(rafId); rafId=null; persist(); updateUI(); }
-  function reset(){ state.isRunning=false; state.remainingMs=durationMs(state.mode); clearInterval(rafId); rafId=null; endAt=null; persist(); updateUI(); }
-  function completeSession(){
-    if(state.mode==='focus'){
-      playChime('focusEnd'); notifyUser('집중 종료','휴식 시간을 시작합니다.');
-      state.completedFocus++; addStat('sessions',1); addStat('focusMs', durationMs('focus'));
-      if(state.selectedTaskId){ const t=tasks.find(t=>t.id===state.selectedTaskId); if(t){ t.done=Math.min((t.done||0)+1, t.est||99); saveTasks(); renderTasks(); } }
-      const nextIsLong=(state.completedFocus%state.longInterval)===0; setMode(nextIsLong?'long':'short'); if(state.autoStartBreaks) start();
-    } else { playChime('breakEnd'); notifyUser('휴식 종료','다음 집중을 시작합니다.'); setMode('focus'); if(state.autoStartFocus) start(); }
-    persist();
-  }
-  function next(){ completeSession(); }
-  function tick(){ const left=endAt-Date.now(); if(left<=0){ state.remainingMs=0; updateUI(); clearInterval(rafId); rafId=null; completeSession(); return; } state.remainingMs=left; updateUI(); }
-
-  function saveTasks(){ store.set('pomo:tasks', tasks) }
-  function addTask(title, est){ const t={id:crypto.randomUUID(), title:title.trim(), est:Math.max(1, est|0), done:0}; if(!t.title) return; tasks.unshift(t); saveTasks(); renderTasks(); if(!state.selectedTaskId){ state.selectedTaskId=t.id; persist(); } }
-  function delTask(id){ tasks=tasks.filter(t=>t.id!==id); saveTasks(); if(state.selectedTaskId===id){ state.selectedTaskId=tasks[0]?.id||null; persist(); } renderTasks(); }
-  function selTask(id){ state.selectedTaskId=id; persist(); renderTasks(); }
+  function saveTasks(){ store.set('pomo:tasks',tasks) } function addTask(t,e){ const n={id:crypto.randomUUID(),title:t.trim(),est:Math.max(1,e|0),done:0}; if(!n.title) return; tasks.unshift(n); saveTasks(); renderTasks(); if(!state.selectedTaskId){ state.selectedTaskId=n.id; persist() } }
+  function delTask(id){ tasks=tasks.filter(t=>t.id!==id); saveTasks(); if(state.selectedTaskId===id){ state.selectedTaskId=tasks[0]?.id||null; persist() } renderTasks() }
+  function selTask(id){ state.selectedTaskId=id; persist(); renderTasks() }
 
   function mmss(ms){ const t=Math.ceil(ms/1000); const m=Math.floor(t/60); const s=t%60; return `${fmt2(m)}:${fmt2(s)}` }
 
-  function updateUI(){
-    const total=durationMs(state.mode); const left=state.remainingMs; const pct=1-Math.max(0,Math.min(1,left/total));
-    const r=140, C=2*Math.PI*r, off=C*pct; const ring=$('#ring'); if(ring){ ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', off); }
-    const timeEl=$('#time'); if(timeEl) timeEl.textContent=mmss(left);
-    const modeEl=$('#mode'); if(modeEl) modeEl.textContent= state.mode==='focus'?'집중':(state.mode==='short'?'짧은 휴식':'긴 휴식');
-    document.title = `${mmss(left)} · ${(modeEl?modeEl.textContent:'모드')} — POMODORO+`;
-    $$('#modeBtns button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.mode===state.mode));
-    const sb=$('#startBtn'), pb=$('#pauseBtn'); if(sb&&pb){ sb.hidden=state.isRunning; pb.hidden=!state.isRunning; }
-    const fm=$('#focusMin'), sm=$('#shortMin'), lm=$('#longMin'), le=$('#longEvery'); if(fm) fm.value=state.durations.focus; if(sm) sm.value=state.durations.short; if(lm) lm.value=state.durations.long; if(le) le.value=state.longInterval;
-    const ab=$('#autoBreak'), af=$('#autoFocus'), snd=$('#sound'), vol=$('#volume'), nt=$('#notify'); if(ab) ab.checked=state.autoStartBreaks; if(af) af.checked=state.autoStartFocus; if(snd) snd.checked=state.sound; if(vol) vol.value=state.volume; if(nt) nt.checked=state.notify;
-    const comp=$('#completed'); if(comp) comp.textContent=getTodaySessions();
-  }
+  function updateUI(){ const total=durationMs(state.mode); const left=state.remainingMs; const pct=1-Math.max(0,Math.min(1,left/total)); const r=140,C=2*Math.PI*r,off=C*pct; const ring=$('#ring'); if(ring){ ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset',off) } const timeEl=$('#time'); if(timeEl) timeEl.textContent=mmss(left); const modeEl=$('#mode'); if(modeEl) modeEl.textContent= state.mode==='focus'?'집중':(state.mode==='short'?'짧은 휴식':'긴 휴식'); document.title = `${mmss(left)} · ${(modeEl?modeEl.textContent:'모드')} — POMODORO+`; $$('#modeBtns button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.mode===state.mode)); const sb=$('#startBtn'),pb=$('#pauseBtn'); if(sb&&pb){ sb.hidden=state.isRunning; pb.hidden=!state.isRunning } const fm=$('#focusMin'),sm=$('#shortMin'),lm=$('#longMin'),le=$('#longEvery'); if(fm) fm.value=state.durations.focus; if(sm) sm.value=state.durations.short; if(lm) lm.value=state.durations.long; if(le) le.value=state.longInterval; const ab=$('#autoBreak'),af=$('#autoFocus'),snd=$('#sound'),vol=$('#volume'),nt=$('#notify'); if(ab) ab.checked=state.autoStartBreaks; if(af) af.checked=state.autoStartFocus; if(snd) snd.checked=state.sound; if(vol) vol.value=state.volume; if(nt) nt.checked=state.notify; const comp=$('#completed'); if(comp) comp.textContent=getTodaySessions() }
 
-  function renderTasks(){
-    const wrap=$('#taskList'); if(!wrap) return; wrap.innerHTML='';
-    if(tasks.length===0){ wrap.innerHTML='<div class="notice">아직 등록된 작업이 없습니다. 위에서 작업을 추가해 주세요.</div>'; return }
-    tasks.forEach(t=>{
-      const item=document.createElement('div'); item.className='task-item'; item.setAttribute('aria-current', state.selectedTaskId===t.id);
-      item.innerHTML=`
-    <input type="radio" name="sel" ${state.selectedTaskId===t.id?'checked':''} aria-label="현재 작업 선택"/>
-    <div class="task-title">${escapeHtml(t.title)} <span class="muted small">(${t.done||0}/${t.est})</span></div>
-    <div class="task-actions">
-      <button class="ok" title="완료 1 증가">+1</button>
-      <button class="ghost" title="수정">편집</button>
-      <button class="danger" title="삭제">삭제</button>
-    </div>`;
-      const [radio,,actions]=item.children;
-      radio.addEventListener('change',()=>selTask(t.id));
-      actions.children[0].addEventListener('click',()=>{ t.done=(t.done||0)+1; saveTasks(); renderTasks(); });
-      actions.children[1].addEventListener('click',()=>{ const title=prompt('작업명', t.title); if(title===null) return; const est=parseInt(prompt('예상 뽀모 수', t.est),10); if(!title.trim()) return; t.title=title.trim(); t.est=isNaN(est)?t.est:Math.max(1,est); saveTasks(); renderTasks(); });
-      actions.children[2].addEventListener('click',()=>{ if(confirm('삭제할까?')) delTask(t.id) });
-      item.addEventListener('click', e=>{ if(e.target.tagName!=='BUTTON' && e.target.tagName!=='INPUT') selTask(t.id) });
-      wrap.appendChild(item);
+  function renderTasks(){ const wrap=$('#taskList'); if(!wrap) return; wrap.innerHTML=''; if(tasks.length===0){ wrap.innerHTML='<div class="notice">아직 등록된 작업이 없습니다. 위에서 작업을 추가해 주세요.</div>'; return } tasks.forEach(t=>{ const item=document.createElement('div'); item.className='task-item'; item.setAttribute('aria-current', state.selectedTaskId===t.id); item.innerHTML=`<input type="radio" name="sel" ${state.selectedTaskId===t.id?'checked':''} aria-label="현재 작업 선택"/><div class="task-title">${escapeHtml(t.title)} <span class="muted small">(${t.done||0}/${t.est})</span></div><div class="task-actions"><button class="ok" title="완료 1 증가">+1</button><button class="ghost" title="수정">편집</button><button class="danger" title="삭제">삭제</button></div>`; const [radio,,actions]=item.children; radio.addEventListener('change',()=>selTask(t.id)); actions.children[0].addEventListener('click',()=>{ t.done=(t.done||0)+1; saveTasks(); renderTasks() }); actions.children[1].addEventListener('click',()=>{ const title=prompt('작업명', t.title); if(title===null) return; const est=parseInt(prompt('예상 뽀모 수', t.est),10); if(!title.trim()) return; t.title=title.trim(); t.est=isNaN(est)?t.est:Math.max(1,est); saveTasks(); renderTasks() }); actions.children[2].addEventListener('click',()=>{ if(confirm('삭제할까?')) delTask(t.id) }); item.addEventListener('click',e=>{ if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='INPUT') selTask(t.id) }); wrap.appendChild(item) }) }
+
+  function renderStats(){ const k=todayKey(); const s=stats[k]||{sessions:0,focusMs:0}; const st=$('#statsToday'); if(st) st.textContent=`${s.sessions|0}회 · ${((s.focusMs||0)/60000)|0}분`; let streak=0; const dates=Object.keys(stats).sort().reverse(); let cur=new Date(); for(const d of dates){ const y=cur.toISOString().slice(0,10); if(d===y && (stats[d]?.sessions||0)>0){ streak++; cur.setDate(cur.getDate()-1) } else break } const se=$('#streak'); if(se) se.textContent=`${streak}일 연속` }
+
+  let POSTS=[]; function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])) }
+  function md2html(md){ let h=md.replace(/^###\s+(.+)$/gm,'<h3>$1</h3>').replace(/^##\s+(.+)$/gm,'<h2>$1</h2>').replace(/^#\s+(.+)$/gm,'<h1>$1</h1>'); h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>'); h=h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" loading="lazy">'); h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1<\/a>'); h=h.replace(/(?:^|\n)-\s+(.+)(?=\n|$)/g,'\n<li>$1<\/li>'); h=h.replace(/(<li>.*<\/li>)/gs,'<ul>$1<\/ul>'); h=h.split(/\n{2,}/).map(x=>/^<h\d|<ul>|<li>|<img|<a/.test(x)?x:`<p>${x.trim()}<\/p>`).join('\n'); return h }
+
+  async function loadPosts(){ const grid=$('#blogGrid'); if(!grid) return; POSTS=[];
+    // 1) 캔버스/로컬: 내장 JSON 먼저 시도
+    try{ const blk=$('#postsInline'); const raw=blk?.textContent?.trim(); if(raw){ const arr=JSON.parse(raw); if(Array.isArray(arr)) POSTS=arr } }catch(e){ console.warn('postsInline parse error',e) }
+    // 2) 배포 환경: /posts.json 가져오기
+    if(POSTS.length===0){ try{ const res=await fetch('/posts.json',{cache:'no-store'}); if(res.ok){ const arr=await res.json(); if(Array.isArray(arr)) POSTS=arr } }catch(_){ /* ignore */ } }
+    // 3) 여전히 없으면 샘플
+    if(!Array.isArray(POSTS) || POSTS.length===0){ POSTS=[{slug:'start-pomodoro',title:'뽀모도로 시작 가이드: 첫 7일 로드맵',date:'2025-08-01',md:'# 시작하기\n\n기본 사이클 **25/5** 를 일주일만 지켜보세요.',thumb:''},{slug:'deep-work-setup',title:'집중 환경 셋업: 책상 위 5가지만 남겨',date:'2025-08-02',md:'- 잡동사니 정리\n- 타이머 고정\n- 의자/조명 점검',thumb:''}] }
+
+    grid.innerHTML='';
+    POSTS.slice(0,12).forEach(p=>{
+      const card=document.createElement('a');
+      card.href=`#p/${p.slug}`; // 해시로 상태만 유지
+      card.className='post-card';
+      const styleThumb=p.thumb?` style="background-image:url('${p.thumb}')"`:'';
+      card.innerHTML=`<div class="post-thumb"${styleThumb}></div><div class="post-meta"><div class="post-title">${escapeHtml(p.title||'제목 없음')}</div><div class="post-date">${p.date?escapeHtml(p.date):''}</div></div>`;
+      // 우측 패널에서 바로 열기 (스크롤 이동 없음)
+      card.addEventListener('click', (e)=>{ e.preventDefault(); showSidebarPost(p.slug); location.hash = `#p/${p.slug}`; });
+      grid.appendChild(card);
     });
   }
 
-  function renderStats(){
-    const k=todayKey(); const s=stats[k]||{sessions:0, focusMs:0};
-    const st=$('#statsToday'); if(st) st.textContent=`${s.sessions|0}회 · ${((s.focusMs||0)/60000)|0}분`;
-    let streak=0; const dates=Object.keys(stats).sort().reverse(); let cur=new Date();
-    for(const d of dates){ const y=cur.toISOString().slice(0,10); if(d===y && (stats[d]?.sessions||0)>0){ streak++; cur.setDate(cur.getDate()-1); } else break; }
-    const se=$('#streak'); if(se) se.textContent=`${streak}일 연속`;
-  }
-
-  // Blog loader + Router (with images/links + new tab cards)
-  let POSTS=[];
-  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])) }
-  function md2html(md){
-    let h = md.replace(/^###\s+(.+)$/gm,'<h3>$1</h3>').replace(/^##\s+(.+)$/gm,'<h2>$1</h2>').replace(/^#\s+(.+)$/gm,'<h1>$1</h1>');
-    h = h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
-    h = h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" loading="lazy">');
-    h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2"  >$1</a>');
-    h = h.replace(/(?:^|\n)-\s+(.+)(?=\n|$)/g,'\n<li>$1</li>'); h = h.replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');
-    h = h.split(/\n{2,}/).map(x=>/^<h\d|<ul>|<li>|<img|<a/.test(x)?x:`<p>${x.trim()}</p>`).join('\n');
-    return h;
-  }
-  async function loadPosts(){
-    const grid=$('#blogGrid'); if(!grid) return;
-    try{ const res=await fetch('/posts.json',{cache:'no-store'}); if(res.ok) POSTS=await res.json(); }catch(_){ POSTS=[] }
-    if(!Array.isArray(POSTS) || POSTS.length===0){
-      POSTS=[{slug:'hello',title:'샘플 글',date:'2025-08-01',md:'# 샘플\n\n![샘플 이미지](assets/desk-setup.jpg)'}];
-    }
-    grid.innerHTML='';
-    
-POSTS.slice(0,12).forEach(p=>{
-  const card = document.createElement('a');
-  card.href = `#p/${p.slug}`;
-  card.className = 'post-card';
-  const styleThumb = p.thumb ? ` style="background-image:url('${p.thumb}');"` : '';
-  card.innerHTML = `<div class="post-thumb"${styleThumb}></div>
-    <div class="post-meta">
-      <div class="post-title">${escapeHtml(p.title||'제목 없음')}</div>
-      <div class="post-date">${p.date?escapeHtml(p.date):''}</div>
-    </div>`;
-  // Inline open (right sidebar, no scroll)
-  card.addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSidebarPost(p.slug);
-    // URL 해시로 상태만 유지 (스크롤 이동 없음)
-    location.hash = `#p/${p.slug}`;
-  });
-  grid.appendChild(card);
-});
-
-  }
-  function showHome(){ $('#homeFlag').hidden=false; $('#blog').hidden=false; $('#postView').hidden=true; }
-  function showPost(slug){
-    const p = POSTS.find(x=>x.slug===slug); if(!p){ showHome(); return; }
-    const wrap=$('#article');
-    const title=`<h1>${escapeHtml(p.title)}</h1><div class="meta">${escapeHtml(p.date||'')}</div>`;
-    let body=''; if(p.html) body=p.html; else if(p.md) body=md2html(p.md); else body='<p>본문이 준비되지 않았어.</p>';
-    wrap.innerHTML= title + `<div class="content">${body}</div>`;
-    $('#homeFlag').hidden=true; $('#blog').hidden=true; $('#postView').hidden=false;
-    document.title = `${p.title} — POMODORO+`;
-  }
+  // 사이드바 보기/목록 토글
   function showSidebarList(){
-    const list = document.getElementById('blogList');
-    const wrap = document.getElementById('blogArticleWrap');
-    if(list) list.hidden = false;
-    if(wrap) wrap.hidden = true;
-    // 페이지 다른 영역은 그대로 유지
+    const list=$('#blogList'); const wrap=$('#blogArticleWrap');
+    if(list) list.hidden=false; if(wrap) wrap.hidden=true;
   }
   function showSidebarPost(slug){
-    const p = POSTS.find(x=>x.slug===slug); if(!p){ showSidebarList(); return; }
-    const list = document.getElementById('blogList');
-    const wrap = document.getElementById('blogArticleWrap');
-    const art  = document.getElementById('blogArticle');
+    const p=POSTS.find(x=>x.slug===slug); if(!p){ showSidebarList(); return }
+    const list=$('#blogList'); const wrap=$('#blogArticleWrap'); const art=$('#blogArticle');
     if(art){
-      const title = `<h1>${escapeHtml(p.title||'제목 없음')}</h1><div class="meta">${escapeHtml(p.date||'')}</div>`;
+      const title=`<h1>${escapeHtml(p.title||'제목 없음')}</h1><div class="meta">${escapeHtml(p.date||'')}</div>`;
       let body=''; if(p.html) body=p.html; else if(p.md) body=md2html(p.md); else body='<p>본문이 준비되지 않았습니다.</p>';
-      art.innerHTML = title + body;
+      art.innerHTML=title+body;
     }
-    if(list) list.hidden = true;
-    if(wrap) wrap.hidden = false;
-    document.title = `${p.title} — POMODORO+`;
+    if(list) list.hidden=true; if(wrap) wrap.hidden=false;
+    document.title=`${p.title} — POMODORO+`;
   }
+
   function router(){
-    const m = location.hash.match(/^#p\/(?<slug>[a-z0-9\-]+)$/i);
-    if(m && m.groups?.slug){ showSidebarPost(m.groups.slug); }
-    else { showSidebarList(); }
-  } else { showHome() } }
+    const m=location.hash.match(/^#p\/(?<slug>[a-z0-9\-]+)$/i);
+    if(m&&m.groups?.slug){ showSidebarPost(m.groups.slug) } else { showSidebarList() }
+  }
 
   function bind(){
-    $$('#modeBtns button').forEach(b=> b.addEventListener('click', ()=> setMode(b.dataset.mode)));
-    const on=(sel,evt,fn)=>{ const el=$(sel); if(el) el.addEventListener(evt,fn) };
-    on('#startBtn','click', ()=>{ ensureAudio(); start(); }); on('#pauseBtn','click', ()=>{ ensureAudio(); pause(); }); on('#resetBtn','click', ()=>{ ensureAudio(); reset(); }); on('#nextBtn','click', next);
-    on('#addTaskBtn','click', ()=>{ const title=$('#taskTitle')?.value||''; const est=parseInt($('#taskEst')?.value||'1',10)||1; addTask(title, est); if($('#taskTitle')) $('#taskTitle').value=''; if($('#taskEst')) $('#taskEst').value=1; $('#taskTitle')?.focus(); });
-    on('#focusMin','change', e=>{ state.durations.focus=Math.max(1, e.target.value|0); if(state.mode==='focus') state.remainingMs=durationMs('focus'); persist(); updateUI(); });
-    on('#shortMin','change', e=>{ state.durations.short=Math.max(1, e.target.value|0); if(state.mode==='short') state.remainingMs=durationMs('short'); persist(); updateUI(); });
-    on('#longMin','change', e=>{ state.durations.long=Math.max(1, e.target.value|0); if(state.mode==='long') state.remainingMs=durationMs('long'); persist(); updateUI(); });
-    on('#longEvery','change', e=>{ state.longInterval=Math.max(2, e.target.value|0); persist(); });
-    on('#autoBreak','change', e=>{ state.autoStartBreaks=e.target.checked; persist(); });
-    on('#autoFocus','change', e=>{ state.autoStartFocus=e.target.checked; persist(); });
-    on('#sound','change', e=>{ state.sound=e.target.checked; persist(); });
-    on('#notify','change', e=>{ state.notify=e.target.checked; if(e.target.checked && Notification && Notification.permission!=='granted') Notification.requestPermission(); persist(); });
-    on('#volume','input', e=>{ state.volume=Number(e.target.value); persist(); });
-    on('#backHome','click', (e)=>{ e.preventDefault(); showSidebarList(); history.replaceState(null,'', location.pathname + location.search); });
-    on('#blogBack','click', (e)=>{ e.preventDefault(); showSidebarList(); history.replaceState(null,'', location.pathname + location.search); }); showHome(); document.getElementById('blog')?.scrollIntoView({behavior:'smooth', block:'start'}); history.replaceState(null,'', location.pathname + location.search); });
-    on('#resetToday','click', ()=>{ if(confirm('오늘 기록을 초기화할까요?')){ resetTodayStats(); renderStats(); updateUI(); }});
-    on('#resetAll','click', ()=>{ if(confirm('모든 데이터(작업/설정/기록)를 초기화할까요? 이 브라우저에서만 삭제됩니다.')){ resetAllData(); renderTasks(); renderStats(); updateUI(); }});
-    window.addEventListener('hashchange', router);
-    on('#navBlog','click', (e)=>{
-      e.preventDefault();
-      location.hash='';
-      showHome();
-      document.getElementById('blog')?.scrollIntoView({behavior:'smooth', block:'start'});
-    });
-    on('#navHome','click', (e)=>{
-      e.preventDefault();
-      location.hash='';
-      showHome();
-      window.scrollTo({top:0, behavior:'smooth'});
-    });
+    $$('#modeBtns button').forEach(b=> b.addEventListener('click',()=> setMode(b.dataset.mode)));
+    const on=(s,e,f)=>{const el=$(s); if(el) el.addEventListener(e,f)};
+    on('#startBtn','click',()=>{ensureAudio(); start()}); on('#pauseBtn','click',()=>{ensureAudio(); pause()}); on('#resetBtn','click',()=>{ensureAudio(); reset()}); on('#nextBtn','click',next);
+    on('#addTaskBtn','click',()=>{ const title=$('#taskTitle')?.value||''; const est=parseInt($('#taskEst')?.value||'1',10)||1; addTask(title,est); if($('#taskTitle')) $('#taskTitle').value=''; if($('#taskEst')) $('#taskEst').value=1; $('#taskTitle')?.focus() });
+    on('#focusMin','change',e=>{ state.durations.focus=Math.max(1,e.target.value|0); if(state.mode==='focus') state.remainingMs=durationMs('focus'); persist(); updateUI() });
+    on('#shortMin','change',e=>{ state.durations.short=Math.max(1,e.target.value|0); if(state.mode==='short') state.remainingMs=durationMs('short'); persist(); updateUI() });
+    on('#longMin','change',e=>{ state.durations.long=Math.max(1,e.target.value|0); if(state.mode==='long') state.remainingMs=durationMs('long'); persist(); updateUI() });
+    on('#longEvery','change',e=>{ state.longInterval=Math.max(2,e.target.value|0); persist() });
+    on('#autoBreak','change',e=>{ state.autoStartBreaks=e.target.checked; persist() });
+    on('#autoFocus','change',e=>{ state.autoStartFocus=e.target.checked; persist() });
+    on('#sound','change',e=>{ state.sound=e.target.checked; persist() });
+    on('#notify','change',e=>{ state.notify=e.target.checked; if(e.target.checked && Notification && Notification.permission!=='granted') Notification.requestPermission(); persist() });
+    on('#volume','input',e=>{ state.volume=Number(e.target.value); persist() });
 
-    window.addEventListener('pointerdown', ()=>ensureAudio(), { once:true });
+    // 블로그 내 뒤로가기 (우측 패널 내부)
+    on('#blogBack','click', (e)=>{ e.preventDefault(); showSidebarList(); history.replaceState(null,'', location.pathname + location.search); });
+
+    // 글로벌 라우터
+    window.addEventListener('hashchange',router);
+
+    // 네비
+    on('#navBlog','click',(e)=>{ e.preventDefault(); location.hash=''; showSidebarList(); document.getElementById('blog')?.scrollIntoView({behavior:'smooth', block:'start'}); });
+    on('#navHome','click',(e)=>{ e.preventDefault(); location.hash=''; showSidebarList(); window.scrollTo({top:0, behavior:'smooth'}); });
+
+    window.addEventListener('pointerdown',()=>ensureAudio(),{once:true});
   }
-  async function init(){ bind(); if(state.remainingMs>durationMs(state.mode)) state.remainingMs=durationMs(state.mode); updateUI(); renderTasks(); renderStats(); await loadPosts(); router(); }
-  document.addEventListener('DOMContentLoaded', init);
+
+  async function init(){ bind(); if(state.remainingMs>durationMs(state.mode)) state.remainingMs=durationMs(state.mode); updateUI(); renderTasks(); renderStats(); await loadPosts(); router() }
+  document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
