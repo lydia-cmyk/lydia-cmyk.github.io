@@ -192,6 +192,37 @@ button{
 .card:hover{ transform: translateY(-2px); transition: transform .18s ease, box-shadow .18s ease; }
 .post-card:hover{ transform: translateY(-2px); transition: transform .18s ease, box-shadow .18s ease; }
 
+/* === Right blog rail only (safe patch) === */
+:root{
+  --railW: 460px;   /* 사이드바 너비 (원하면 숫자만 바꾸면 됨) */
+  --containerW: 1080px;
+  --gap: 18px;
+}
+
+@media (min-width: 1200px){
+  /* 우측 레일 id */
+  #rightRail{
+    position: fixed;
+    top: 96px; /* 헤더 아래 */
+    right: calc(50% - (var(--containerW) / 2) + var(--gap));
+    width: var(--railW);
+  }
+  #rightRail .blog-grid{ grid-template-columns: 1fr; }
+
+  /* 혹시 프로젝트에 #blogRail을 썼다면 호환 유지 */
+  #blogRail{
+    position: fixed;
+    top: 96px;
+    right: calc(50% - (var(--containerW) / 2) + var(--gap));
+    width: var(--railW);
+  }
+  #blogRail .blog-grid{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1199.98px){
+  #rightRail, #blogRail{ position: static; width: auto; }
+}
+
 </style>
 </head>
 <body>
