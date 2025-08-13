@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>POMODORO+ · 집중 타이머 & 공부 기록</title>
-  <meta name="description" content="뽀모도로 타이머와 학습 노하우. 우측 패널에서 바로 글 열람 (캔버스 내장 posts.json 지원)" />
+  <meta name="description" content="뽀모도로 타이머와 학습 노하우. 우측 패널에서 바로 글 열람 + 유리질감(블러) 배경 유지." />
   <style>
     :root{ --bg:#0a0c12; --panel:#10131b; --panel-2:#151a24; --text:#edf2f7; --muted:#9aa0a6; --acc:#ff4d4f; --ring:#2a2f3a; --glow1:0 0 32px rgba(255,77,79,.22),0 0 8px rgba(255,77,79,.35); --glow2:0 0 36px rgba(138,180,248,.18), inset 0 0 0 1px rgba(255,255,255,.02); --prose:#cfd6e4 }
     *{box-sizing:border-box} html,body{height:100%}
@@ -19,48 +19,81 @@
     nav a:hover{text-decoration:underline;text-underline-offset:3px}
     main{margin-top:22px}
     .row{display:flex;gap:18px;flex-wrap:wrap}
-    .card{background:var(--panel);border:1px solid var(--ring);border-radius:20px;padding:18px;box-shadow:var(--glow2)}
-    .card h3{margin:0 0 12px;font-size:13px;color:#c7cbd1;font-weight:800;letter-spacing:.3px}
+
+    /* ---- Glass + blurred city background (🔒 유지) ---- */
+    body::before{
+      content:""; position:fixed; inset:0;
+      background:url('assets/bg-city.jpg?v=3') center/cover no-repeat;
+      filter:blur(16px) saturate(120%) brightness(1.12);
+      transform:scale(1.06); z-index:-2;
+    }
+    body::after{
+      content:""; position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(255,77,79,.06), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(138,180,248,.05), transparent 60%),
+        linear-gradient(180deg, rgba(8,10,16,.44), rgba(8,10,16,.56) 30%, rgba(8,10,16,.64));
+      z-index:-1;
+    }
+
+    /* glass card */
+    .card{ background:rgba(16,20,28,.42); border:1px solid rgba(255,255,255,.08);
+           border-radius:20px; padding:18px; box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+           -webkit-backdrop-filter:blur(18px) saturate(140%); backdrop-filter:blur(18px) saturate(140%); }
+    /* glass header bar */
+    header.site{ background:rgba(16,20,28,.38); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:10px 14px;
+                 -webkit-backdrop-filter:blur(18px) saturate(140%); backdrop-filter:blur(18px) saturate(140%);
+                 box-shadow:0 10px 36px rgba(0,0,0,.52), 0 2px 8px rgba(0,0,0,.25); }
+    .card:hover{ transform: translateY(-2px); transition: transform .18s ease, box-shadow .18s ease; }
+
+    /* ===== Timer ===== */
     .timer-card{flex:1 1 360px;display:grid;justify-items:center;text-align:center}
-    .ring{position:relative;width:340px;height:340px;filter:drop-shadow(0 10px 24px rgba(255,77,79,.18))}
-    .ring svg{transform:rotate(-90deg)} .time{position:absolute;inset:0;display:grid;place-items:center}
-    .mmss{font-size:64px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 10px rgba(0,0,0,.35)}
-    .mode{margin-top:8px;font-size:13px;color:#cbd5e1;letter-spacing:.4px}
+    .ring{position:relative;width:340px;height:340px;filter:drop-shadow(0 14px 30px rgba(255,77,79,.18))}
+    .ring svg{transform:rotate(-90deg)}
+    .time{position:absolute;inset:0}
+    .mmss{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 10px rgba(0,0,0,.35);line-height:1}
+    .mode{position:absolute;top:65%;left:50%;transform:translateX(-50%);font-size:13px;color:#cbd5e1;letter-spacing:.4px}
     .controls{display:flex;gap:8px;justify-content:center;margin-top:10px}
-    button{background:#1a1f2b;color:var(--text);border:1px solid var(--ring);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:800}
-    .primary{background:var(--acc);border-color:#b3262e;color:#fff}
+    button{background:rgba(26,31,43,.6);color:var(--text);border:1px solid rgba(255,255,255,.10);padding:12px 16px;border-radius:16px;cursor:pointer;font-weight:800}
+    .primary{background:linear-gradient(180deg,#ff5a5c,#ff3b3d);border-color:#b3262e;color:#fff}
     .ghost{background:transparent}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-    .tab{padding:9px 14px;border-radius:999px;background:var(--panel-2);border:1px solid var(--ring);color:var(--text);cursor:pointer}
-    .tab[aria-pressed="true"],.tab[aria-selected="true"]{background:#1e2431;outline:2px solid #2b3240;color:#fff}
-    .tasks{flex:1 1 320px}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;background: rgba(255,255,255,.06);
+          backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding:6px; border-radius:18px;
+          border:1px solid rgba(255,255,255,.08) }
+    .tab{padding:9px 14px;border-radius:12px;background:transparent;border:none;color:var(--text);cursor:pointer}
+    .tab[aria-pressed="true"],.tab[aria-selected="true"]{background: rgba(255,255,255,.14); color:#fff}
+
+    /* ===== Inputs ===== */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     input[type="text"],input[type="number"],input[type="range"]{width:100%;background:#0e1220;color:#fff;border:1px solid #2a3140;border-radius:10px;padding:10px}
     label{font-size:12px;color:#b2bac7;display:block;margin-bottom:6px}
 
-    /* blog list cards */
+    /* ===== Blog cards (album) ===== */
     .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
-    .post-card{display:block;overflow:hidden;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,#11151e,#0e121b)}
+    .post-card{display:block;overflow:hidden;border-radius:20px;border:1px solid rgba(255,255,255,.10);background:rgba(16,20,28,.42);box-shadow: 0 24px 60px rgba(0,0,0,.52), 0 8px 20px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.05)}
     .post-thumb{aspect-ratio:16/9;background-size:cover;background-position:center;background-image:linear-gradient(135deg,#1e2634,#131a27)}
     .post-meta{padding:12px 12px 14px}.post-title{font-weight:900;color:var(--text);font-size:15px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .post-date{font-size:12px;color:#9aa0a6}
 
-    /* old full article card (kept but unused) */
-    #postView{margin-top:16px}
-
-    /* inline article styles (right sidebar) */
+    /* ===== Article (inline on right) ===== */
     #blog .blog-article{ margin-top:8px }
     #blog .blog-article .meta{ color:#9aa0a6; font-size:13px; margin:0 0 10px }
     #blog .blog-article .content{ color:#cfd6e4; line-height:1.75 }
     #blog .blog-article h1{ font-size:22px; margin:0 0 6px; font-weight:900 }
     #blog .blog-article img{ display:block; max-width:100%; width:100%; height:auto; border-radius:12px; margin:10px 0 }
 
-    /* layout: right sidebar */
+    /* ===== Layout: right sidebar sticky ===== */
     @media (min-width:1120px){
       main{ display:grid; grid-template-columns:1fr 360px; gap:18px; align-items:start }
       #homeFlag, main > .row, #postView{ grid-column:1 }
       #blog{ grid-column:2; grid-row:1 / span 3; position:sticky; top:84px; margin-top:0 !important; align-self:start }
       #blog .blog-grid{ grid-template-columns:1fr }
     }
+
+    /* Footer & misc */
+    .footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:#9aa0a6}
+    .pill{padding:6px 10px;background:var(--panel-2);border:1px solid var(--ring);border-radius:999px;font-size:12px}
+    .link{color:#8ab4f8;text-underline-offset:2px}
   </style>
 </head>
 <body>
@@ -157,7 +190,7 @@
       </div>
     </section>
 
-    <!-- 기존 전체 본문 카드(미사용, 호환성 유지) -->
+    <!-- (호환용) 단일 본문 카드: 현재는 사용 안 함 -->
     <section id="postView" class="card article" hidden>
       <div class="meta"><a href="#" id="backHome" class="link">← 목록으로</a></div>
       <article class="content" id="article"></article>
@@ -180,9 +213,9 @@
   const store={ get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(_){return d}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))} };
   const fmt2=n=>String(n).padStart(2,'0'); const todayKey=()=>new Date().toISOString().slice(0,10);
 
-  let audioCtx=null,audioUnlocked=false; function ensureAudio(){try{if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)()} if(audioCtx.state==='suspended'){audioCtx.resume()} audioUnlocked=true}catch(e){console.warn('Audio init failed',e)}}
+  let audioCtx=null,audioUnlocked=false; function ensureAudio(){try{if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)()} if(audioCtx.state==='suspended'){ audioCtx.resume() } audioUnlocked=true}catch(e){console.warn('Audio init failed',e)}}
   function playChime(kind='done'){ if(!state.sound||!audioCtx||!audioUnlocked) return; const vol=Math.max(0,Math.min(1,state.volume||0.4)); function tone(f,d,s){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);const t0=audioCtx.currentTime+(s||0);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol*0.35,t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+d);o.start(t0);o.stop(t0+d+0.05)} if(kind==='focusEnd'){tone(880,0.12,0);tone(1175,0.12,0.15)} else {tone(523.25,0.10,0);tone(659.25,0.10,0.12);tone(783.99,0.12,0.24)} }
-  function notifyUser(t,b){ if(!state.notify) return; try{ if('Notification' in window && Notification.permission==='granted'){ new Notification(t,{body:b}) } }catch(e){} }
+  function notifyUser(t,b){ if(!state.notify) return; try{ if('Notification' in window && Notification.permission==='granted'){ new Notification(t,{body:b}) } }catch(e){}
 
   const defaultState={mode:'focus',durations:{focus:25,short:5,long:15},longInterval:4,completedFocus:0,remainingMs:25*60*1000,isRunning:false,autoStartBreaks:true,autoStartFocus:false,sound:true,volume:0.4,notify:true,selectedTaskId:null};
   let state=Object.assign({},defaultState,store.get('pomo:state',{})); let tasks=store.get('pomo:tasks',[]); let stats=store.get('pomo:stats',{}); let endAt=null,rafId=null;
@@ -212,6 +245,7 @@
 
   function renderStats(){ const k=todayKey(); const s=stats[k]||{sessions:0,focusMs:0}; const st=$('#statsToday'); if(st) st.textContent=`${s.sessions|0}회 · ${((s.focusMs||0)/60000)|0}분`; let streak=0; const dates=Object.keys(stats).sort().reverse(); let cur=new Date(); for(const d of dates){ const y=cur.toISOString().slice(0,10); if(d===y && (stats[d]?.sessions||0)>0){ streak++; cur.setDate(cur.getDate()-1) } else break } const se=$('#streak'); if(se) se.textContent=`${streak}일 연속` }
 
+  // ===== Blog loader + inline right sidebar viewer =====
   let POSTS=[]; function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])) }
   function md2html(md){ let h=md.replace(/^###\s+(.+)$/gm,'<h3>$1</h3>').replace(/^##\s+(.+)$/gm,'<h2>$1</h2>').replace(/^#\s+(.+)$/gm,'<h1>$1</h1>'); h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>'); h=h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" loading="lazy">'); h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1<\/a>'); h=h.replace(/(?:^|\n)-\s+(.+)(?=\n|$)/g,'\n<li>$1<\/li>'); h=h.replace(/(<li>.*<\/li>)/gs,'<ul>$1<\/ul>'); h=h.split(/\n{2,}/).map(x=>/^<h\d|<ul>|<li>|<img|<a/.test(x)?x:`<p>${x.trim()}<\/p>`).join('\n'); return h }
 
@@ -237,26 +271,10 @@
   }
 
   // 사이드바 보기/목록 토글
-  function showSidebarList(){
-    const list=$('#blogList'); const wrap=$('#blogArticleWrap');
-    if(list) list.hidden=false; if(wrap) wrap.hidden=true;
-  }
-  function showSidebarPost(slug){
-    const p=POSTS.find(x=>x.slug===slug); if(!p){ showSidebarList(); return }
-    const list=$('#blogList'); const wrap=$('#blogArticleWrap'); const art=$('#blogArticle');
-    if(art){
-      const title=`<h1>${escapeHtml(p.title||'제목 없음')}</h1><div class="meta">${escapeHtml(p.date||'')}</div>`;
-      let body=''; if(p.html) body=p.html; else if(p.md) body=md2html(p.md); else body='<p>본문이 준비되지 않았습니다.</p>';
-      art.innerHTML=title+body;
-    }
-    if(list) list.hidden=true; if(wrap) wrap.hidden=false;
-    document.title=`${p.title} — POMODORO+`;
-  }
+  function showSidebarList(){ const list=$('#blogList'); const wrap=$('#blogArticleWrap'); if(list) list.hidden=false; if(wrap) wrap.hidden=true; }
+  function showSidebarPost(slug){ const p=POSTS.find(x=>x.slug===slug); if(!p){ showSidebarList(); return } const list=$('#blogList'); const wrap=$('#blogArticleWrap'); const art=$('#blogArticle'); if(art){ const title=`<h1>${escapeHtml(p.title||'제목 없음')}</h1><div class="meta">${escapeHtml(p.date||'')}</div>`; let body=''; if(p.html) body=p.html; else if(p.md) body=md2html(p.md); else body='<p>본문이 준비되지 않았습니다.</p>'; art.innerHTML=title+body; } if(list) list.hidden=true; if(wrap) wrap.hidden=false; document.title=`${p.title} — POMODORO+`; }
 
-  function router(){
-    const m=location.hash.match(/^#p\/(?<slug>[a-z0-9\-]+)$/i);
-    if(m&&m.groups?.slug){ showSidebarPost(m.groups.slug) } else { showSidebarList() }
-  }
+  function router(){ const m=location.hash.match(/^#p\/(?<slug>[a-z0-9\-]+)$/i); if(m&&m.groups?.slug){ showSidebarPost(m.groups.slug) } else { showSidebarList() } }
 
   function bind(){
     $$('#modeBtns button').forEach(b=> b.addEventListener('click',()=> setMode(b.dataset.mode)));
