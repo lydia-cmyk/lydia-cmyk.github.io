@@ -14,7 +14,7 @@ slug: what-is-pomodoro
 ## 기본 사이클
 아래 그림처럼 구성하면 됩니다. 25분 집중 → 5분 휴식 × 4회 → 15분 휴식.
 
-![뽀모도로 기본 사이클](/assets/pomodoro-cycle.png)
+![뽀모도로 기본 사이클](/assets/pomodoro-cycle.jpg)
 
 ## 기대할 수 있는 변화
 - **시작 속도**가 빨라집니다. “완벽히 준비되면 시작”이 아니라 “25분만”  
